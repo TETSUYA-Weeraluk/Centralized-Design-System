@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
-import BaseFormInput, { type BaseFormInputField } from "@/components/custom-ui/BaseFormInput";
+import BaseFormInput, {
+  type BaseFormInputField,
+} from "@/components/custom-ui/BaseFormInput";
 import { User, Mail } from "lucide-react";
 
 /** Args สำหรับ Story (ไม่รวม field เพราะใส่ใน render แล้ว) */
@@ -40,7 +42,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "Input สำหรับฟอร์มที่รับ `field` จาก TanStack Form (form.Field children). แสดง label, icon (optional), และ error messages ได้",
+          "Input สำหรับฟอร์มที่รับ `field` จาก TanStack Form (form.Field children). แสดง label, icon (optional), และ error messages ได้ \n\n ติดตั้ง component BaseFormInput ด้วยคำสั่ง:\n\n```bash\nnpx shadcn@latest add http://192.168.11.53:8080/r/BaseFormInput.json\n```",
       },
     },
   },

@@ -19,7 +19,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "ติดตั้ง component BaseDialog ด้วยคำสั่ง:\n\n```bash\nnpx shadcn@latest add http://192.168.11.53:3000/r/BaseDialog.json\n```",
+          "ติดตั้ง component BaseDialog ด้วยคำสั่ง:\n\n```bash\nnpx shadcn@latest add http://192.168.11.53:8080/r/BaseDialog.json\n```",
       },
     },
   },

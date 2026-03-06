@@ -39,7 +39,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "ติดตั้ง component BaseCombobox ด้วยคำสั่ง:\n\n```bash\nnpx shadcn@latest add http://192.168.11.53:3000/r/BaseCombobox.json\n```",
+          "ติดตั้ง component BaseCombobox ด้วยคำสั่ง:\n\n```bash\nnpx shadcn@latest add http://192.168.11.53:8080/r/BaseCombobox.json\n```",
       },
     },
   },
