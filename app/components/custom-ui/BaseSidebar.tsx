@@ -18,7 +18,7 @@ import {
 import * as Icons from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import React from "react";
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,6 +31,13 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
+/** ตรวจว่า pathname ตรงกับ to (exact หรือ prefix เช่น /settings/team ตรงกับ /settings) */
+function isPathMatch(pathname: string, to: string): boolean {
+  if (pathname === to) return true;
+  if (to === "/") return false;
+  return pathname.startsWith(to + "/");
+}
 
 /** สร้างอักษรนำจากชื่อ (เช่น "John Doe" -> "JD") */
 function getInitials(name: string): string {
@@ -115,6 +122,7 @@ function BaseSidebarHeader({
 /** เมนูแบบ Collapsible — ต้องส่ง children (รายการย่อย) เสมอ แต่ละรายการมี title, to เท่านั้น */
 function BaseSidebarItemCollapsible({
   items,
+  pathname,
 }: {
   items: {
     title: string;
@@ -123,41 +131,51 @@ function BaseSidebarItemCollapsible({
     isActive?: boolean;
     children: { title: string; to: string }[];
   }[];
+  pathname: string;
 }) {
   return (
     <SidebarGroup>
       <SidebarMenu>
-        {items.map((item) => (
-          <Collapsible
-            key={item.title}
-            asChild
-            defaultOpen={item.isActive}
-            className="group/collapsible"
-          >
-            <SidebarMenuItem>
-              <CollapsibleTrigger asChild>
-                <SidebarMenuButton tooltip={item.title}>
-                  {item.icon && <item.icon />}
-                  <span>{item.title}</span>
-                  <Icons.ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                </SidebarMenuButton>
-              </CollapsibleTrigger>
-              <CollapsibleContent>
-                <SidebarMenuSub>
-                  {item.children.map((subItem) => (
-                    <SidebarMenuSubItem key={subItem.title}>
-                      <SidebarMenuSubButton asChild>
-                        <Link to={subItem.to}>
-                          <span>{subItem.title}</span>
-                        </Link>
-                      </SidebarMenuSubButton>
-                    </SidebarMenuSubItem>
-                  ))}
-                </SidebarMenuSub>
-              </CollapsibleContent>
-            </SidebarMenuItem>
-          </Collapsible>
-        ))}
+        {items.map((item) => {
+          const parentActive =
+            item.isActive ??
+            (isPathMatch(pathname, item.to) ||
+              item.children.some((c) => isPathMatch(pathname, c.to)));
+          return (
+            <Collapsible
+              key={item.title}
+              asChild
+              defaultOpen={parentActive}
+              className="group/collapsible"
+            >
+              <SidebarMenuItem>
+                <CollapsibleTrigger asChild>
+                  <SidebarMenuButton tooltip={item.title}>
+                    {item.icon && <item.icon />}
+                    <span>{item.title}</span>
+                    <Icons.ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                  </SidebarMenuButton>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <SidebarMenuSub>
+                    {item.children.map((subItem) => (
+                      <SidebarMenuSubItem key={subItem.title}>
+                        <SidebarMenuSubButton
+                          asChild
+                          isActive={isPathMatch(pathname, subItem.to)}
+                        >
+                          <Link to={subItem.to}>
+                            <span>{subItem.title}</span>
+                          </Link>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuSubItem>
+                    ))}
+                  </SidebarMenuSub>
+                </CollapsibleContent>
+              </SidebarMenuItem>
+            </Collapsible>
+          );
+        })}
       </SidebarMenu>
     </SidebarGroup>
   );
@@ -167,6 +185,7 @@ function BaseSidebarItemCollapsible({
 function BaseSidebarItemGroup({
   title: groupLabel,
   items,
+  pathname,
 }: {
   items: {
     title: string;
@@ -179,6 +198,7 @@ function BaseSidebarItemGroup({
   title?: string;
   /** แสดงรายการ "More" ด้านล่าง */
   showMoreItem?: boolean;
+  pathname: string;
 }) {
   const { isMobile } = useSidebar();
   return (
@@ -187,7 +207,11 @@ function BaseSidebarItemGroup({
       <SidebarMenu>
         {items.map((item) => (
           <SidebarMenuItem key={item.title}>
-            <SidebarMenuButton asChild tooltip={item.title}>
+            <SidebarMenuButton
+              asChild
+              tooltip={item.title}
+              isActive={isPathMatch(pathname, item.to)}
+            >
               <Link to={item.to}>
                 {item.icon && <item.icon />}
                 <span>{item.title}</span>
@@ -272,6 +296,7 @@ function NavUser({
 /** เมนูแบบ submenu — หัวข้อมีลิงก์ + รายการย่อย (children มีแค่ title, to) */
 function BaseSidebarItemSubmenu({
   items,
+  pathname,
 }: {
   items: {
     title: string;
@@ -280,13 +305,17 @@ function BaseSidebarItemSubmenu({
     icon?: LucideIcon;
     children: { title: string; to: string; isActive?: boolean }[];
   }[];
+  pathname: string;
 }) {
   return (
     <SidebarGroup>
       <SidebarMenu>
         {items.map((item) => (
           <SidebarMenuItem key={item.title}>
-            <SidebarMenuButton asChild>
+            <SidebarMenuButton
+              asChild
+              isActive={isPathMatch(pathname, item.to)}
+            >
               <Link to={item.to} className="font-medium">
                 {item.icon && <item.icon />}
                 {item.title}
@@ -295,7 +324,12 @@ function BaseSidebarItemSubmenu({
             <SidebarMenuSub>
               {item.children.map((subItem) => (
                 <SidebarMenuSubItem key={subItem.title}>
-                  <SidebarMenuSubButton asChild isActive={subItem.isActive}>
+                  <SidebarMenuSubButton
+                    asChild
+                    isActive={
+                      subItem.isActive ?? isPathMatch(pathname, subItem.to)
+                    }
+                  >
                     <Link to={subItem.to}>
                       <span>{subItem.title}</span>
                     </Link>
@@ -391,6 +425,7 @@ export type IBaseSidebarProps = Omit<
 
 const BaseSidebar = ({ data, ...sidebarProps }: IBaseSidebarProps) => {
   const { header, menuItems = [], user } = data;
+  const { pathname } = useLocation();
 
   return (
     <Sidebar collapsible="icon" {...sidebarProps}>
@@ -413,6 +448,7 @@ const BaseSidebar = ({ data, ...sidebarProps }: IBaseSidebarProps) => {
               <BaseSidebarItemCollapsible
                 key={`${item.type}-${index}-${item.title}`}
                 items={[item]}
+                pathname={pathname}
               />
             );
           }
@@ -423,6 +459,7 @@ const BaseSidebar = ({ data, ...sidebarProps }: IBaseSidebarProps) => {
                 items={item.children}
                 title={item.title}
                 showMoreItem={item.showMoreItem}
+                pathname={pathname}
               />
             );
           }
@@ -431,6 +468,7 @@ const BaseSidebar = ({ data, ...sidebarProps }: IBaseSidebarProps) => {
               <BaseSidebarItemSubmenu
                 key={`${item.type}-${index}-${item.title}`}
                 items={[item]}
+                pathname={pathname}
               />
             );
           }

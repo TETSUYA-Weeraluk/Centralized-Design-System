@@ -1,5 +1,7 @@
 import type { Route } from "./+types/home";
-import HomePage from "@/pages/home/HomePage";
+import LoginPage from "@/components/template-page/LoginPage";
+
+export const handle = { title: "Home" as const };
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -9,5 +11,5 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Home() {
-  return <HomePage />;
+  return <LoginPage />;
 }

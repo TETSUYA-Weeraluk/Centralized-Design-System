@@ -1,3 +1,4 @@
+import React from "react";
 import BaseSidebar, {
   type DataSidebar,
 } from "@/components/custom-ui/BaseSidebar";
@@ -21,7 +22,6 @@ import {
 } from "lucide-react";
 import { Link } from "react-router";
 import { Separator } from "@/components/ui/separator";
-import LoginPage from "@/components/template-page/LoginPage";
 
 const sidebarData: DataSidebar = {
   header: {
@@ -102,7 +102,6 @@ const sidebarData: DataSidebar = {
       title: "Dashboard",
       to: "/",
       icon: LayoutDashboard,
-      isActive: true,
       children: [
         { title: "Overview", to: "/" },
         { title: "Analytics", to: "/analytics" },
@@ -125,7 +124,7 @@ const sidebarData: DataSidebar = {
       to: "/settings",
       icon: Settings,
       children: [
-        { title: "General", to: "/settings" },
+        { title: "General", to: "/settings/general" },
         { title: "Team", to: "/settings/team" },
         { title: "Privacy", to: "/settings/privacy" },
       ],
@@ -138,7 +137,7 @@ const sidebarData: DataSidebar = {
       children: [
         { title: "Profile", to: "/account/profile" },
         { title: "Security", to: "/account/security" },
-        { title: "Billing", to: "/account/billing", isActive: true },
+        { title: "Billing", to: "/account/billing" },
       ],
     },
   ],
@@ -148,22 +147,29 @@ const sidebarData: DataSidebar = {
   },
 };
 
-const HomePage = () => {
+export type MainLayoutProps = {
+  /** ชื่อแสดงใน header (default: "Home") */
+  title?: string;
+  /** เนื้อหาหน้า — ใส่เป็น children */
+  children: React.ReactNode;
+};
+
+const MainLayout = ({ title = "Home", children }: MainLayoutProps) => {
   return (
     <SidebarProvider>
       <BaseSidebar data={sidebarData} />
-      <SidebarInset>
-        <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
+      <SidebarInset className="flex flex-col min-h-0">
+        <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-2 border-b bg-background px-4">
           <SidebarTrigger className="-ml-1" />
           <Separator orientation="vertical" className="mr-2 h-4" />
-          <span className="font-semibold">Home</span>
+          <span className="font-semibold">{title}</span>
         </header>
-        <div className="flex flex-1 flex-col gap-4 p-4">
-          <LoginPage />
+        <div className="flex flex-1 flex-col gap-4 overflow-auto p-4 min-h-0">
+          {children}
         </div>
       </SidebarInset>
     </SidebarProvider>
   );
 };
 
-export default HomePage;
+export default MainLayout;
